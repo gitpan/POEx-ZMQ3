@@ -1,0 +1,38 @@
+NAME
+    POEx::ZMQ3 - POE-enabled asynchronous ZeroMQ components
+
+SYNOPSIS
+      This is an early development release.
+      Many pieces are missing, including this SYNOPSIS.
+
+DESCRIPTION
+    A set of roles and classes providing a POE-enabled asynchronous
+    interface to ZeroMQ (version 3).
+
+    This is an early development release. GitHub:
+    <http://github.com/avenj/poex-zmq3>
+
+  Classes
+    POEx::ZMQ3::Publisher and POEx::ZMQ3::Subscriber implement PUB and SUB
+    type ZeroMQ sockets.
+
+    POEx::ZMQ3::Requestor and POEx::ZMQ3::Replier implement REQ and REP type
+    sockets.
+
+    These are very simple base implementations.
+
+  Roles
+    POEx::ZMQ3::Role::Sockets is the basic asynchronous POE interface to
+    ZMQ::LibZMQ3 sockets; POEx::ZMQ3::Role::Endpoints adds a layer of easy
+    ZMQ socket endpoint/target management.
+
+    MooX::Role::POE::Emitter provides POE event emitter functionality.
+
+SEE ALSO
+    ZMQ::LibZMQ3
+
+    <http://www.zeromq.org>
+
+AUTHOR
+    Jon Portnoy <avenj@cobaltirc.org>
+
