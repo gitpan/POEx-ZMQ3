@@ -17,7 +17,7 @@ name: POEx-ZMQ3
 provides:
   POEx::ZMQ3:
     file: lib/POEx/ZMQ3.pm
-    version: 0.00_03
+    version: 0.00_04
   POEx::ZMQ3::Context:
     file: lib/POEx/ZMQ3/Context.pm
     version: 0
@@ -38,7 +38,7 @@ provides:
     version: 0
   POEx::ZMQ3::Role::Sockets:
     file: lib/POEx/ZMQ3/Role/Sockets.pm
-    version: 0.00_02
+    version: 0.00_04
   POEx::ZMQ3::Subscriber:
     file: lib/POEx/ZMQ3/Subscriber.pm
     version: 0
@@ -58,4 +58,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/avenj/poex-zmq3.git
-version: 0.00_03
+version: 0.00_04

@@ -23,8 +23,11 @@ DESCRIPTION
 
   Roles
     POEx::ZMQ3::Role::Sockets is the basic asynchronous POE interface to
-    ZMQ::LibZMQ3 sockets; POEx::ZMQ3::Role::Endpoints adds a layer of easy
-    ZMQ socket endpoint/target management.
+    ZMQ::LibZMQ3 sockets; it can be used to add ZeroMQ sockets to any Moo
+    class.
+
+    POEx::ZMQ3::Role::Endpoints adds a layer of easy ZMQ socket
+    endpoint/target management to POEx::ZMQ3::Role::Sockets.
 
     MooX::Role::POE::Emitter provides POE event emitter functionality.
 

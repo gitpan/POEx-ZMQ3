@@ -1,5 +1,5 @@
 package POEx::ZMQ3::Role::Sockets;
-our $VERSION = '0.00_02';
+our $VERSION = '0.00_04';
 
 use 5.10.1;
 use Carp;
@@ -9,6 +9,8 @@ use strictures 1;
 use IO::File;
 
 use POE;
+
+use POSIX ();
 
 use Scalar::Util 'weaken';
 
@@ -71,6 +73,7 @@ sub _create_zmq_socket_sess {
       $self => {
         _start         => '_zsock_start',
         zsock_ready    => '_zsock_ready',
+        zsock_write    => '_zsock_write',
         zsock_close    => '_zsock_close',
         zsock_deselect => '_zsock_deselect',
         zsock_cleanup  => '_zsock_cleanup',
@@ -133,8 +136,6 @@ sub bind_zmq_socket {
     confess "zmq_bind failed: $!"
   }
 
-  ## FIXME should we try an initial read or will select do the right thing?
-
   $self
 }
 
@@ -195,26 +196,61 @@ sub set_zmq_sockopt {
   if ( zmq_setsockopt( $zsock, @_ ) == -1 ) {
     confess "zmq_setsockopt failed: $!"
   }
+
+  $self
 }
 
 sub write_zmq_socket {
-  my ($self, $alias, $data, @params) = @_;
+  my $self = shift;
   confess "Expected an alias and data"
-    unless defined $data;
+    unless @_ > 1;
+
+  $poe_kernel->call( $self->_zmq_zsock_sess,
+    'zsock_write',
+    @_
+  );
+
+  $self
+}
+
+sub write_zmq_socket_later {
+  my $self = shift;
+  confess "Expected an alias and data"
+    unless @_ > 1;
+  
+  $poe_kernel->post( $self->_zmq_zsock_sess,
+    'zsock_write',
+    @_
+  );
+
+  $self
+}
+
+sub _zsock_write {
+  my ($kernel, $self) = @_[KERNEL, OBJECT];
+  my ($alias, $data, $flags) = @_[ARG0 .. $#_];
 
   my $zsock = $self->get_zmq_socket($alias);
   unless (defined $zsock) {
-    carp "Cannot write_zmq_socket; no such alias $alias";
+    warn "Cannot write_zmq_socket; no such alias $alias"
+      if $ENV{POE_ZMQ_DEBUG};
     return
   }
 
   if ($self->__zmq_sock_is_closing($alias)) {
-    carp "Cannot write_zmq_socket; socket $alias is closing";
+    warn "Cannot write_zmq_socket; socket $alias is closing"
+      if $ENV{POE_ZMQ_DEBUG};
     return
   }
 
+  $flags //= ZMQ_DONTWAIT;
   ## _sendmsg creates an appropriate obj if not given one:
-  if ( zmq_sendmsg( $zsock, $data, @params ) == -1 ) {
+  if ( zmq_sendmsg( $zsock, $data, ($flags ? $flags : () ) ) == -1 ) {
+    ## FIXME should terminate after looping too many times, perhaps:
+    if ($! == POSIX::EAGAIN) {
+        $poe_kernel->yield( 'zsock_write', $alias, $data, $flags );
+        return $self
+    }
     confess "zmq_sendmsg failed: $!";
   }
 
@@ -242,11 +278,6 @@ sub _zsock_handle_socket {
     undef,
     $alias
   );
-
-  ## See if anything was prebuffered.
-  while (my $msg = zmq_recvmsg( $ref->{zsock}, ZMQ_RCVMORE )) {
-    $self->zmq_message_ready( $alias, $msg, zmq_msg_data($msg) );
-  }
 }
 
 

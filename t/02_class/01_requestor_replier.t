@@ -14,20 +14,21 @@ my $got = {};
 my $expected = {
   'got connected_to' => 1,
   'got replying_on'  => 1,
-  'got got_request'  => 1,
-  'request looks ok' => 1,
-  'got got_reply'    => 1,
-  'reply looks ok'   => 1,
+  'got got_request'  => 10,
+  'request looks ok' => 10,
+  'got got_reply'    => 10,
+  'reply looks ok'   => 10,
 };
 
+alarm 10;
 POE::Session->create(
   inline_states => {
     _start => sub {
+      $_[KERNEL]->sig(ALRM => 'fail');
       $zreply->start( $addr );
-      $poe_kernel->post( $zreply->session_id, 'subscribe' );
       $zrequest->start( $addr );
+      $poe_kernel->post( $zreply->session_id, 'subscribe' );
       $poe_kernel->post( $zrequest->session_id, 'subscribe' );
-      $poe_kernel->delay( stopit => 10 );
     },
 
     zeromq_connected_to => sub {
@@ -43,7 +44,7 @@ POE::Session->create(
       $got->{'got got_request'}++;
       $got->{'request looks ok'}++
         if $_[ARG0] eq 'ping!';
-      $zreply->yield( sub { $zreply->reply( 'pong!' ) });
+      $zreply->reply( 'pong!' )
     },
 
     zeromq_got_reply => sub {
@@ -51,13 +52,22 @@ POE::Session->create(
       $got->{'reply looks ok'}++
         if $_[ARG0] eq 'pong!';
 
-      $_[KERNEL]->yield( 'stopit' );
+      if ($got->{'got got_reply'} == 10) {
+        $_[KERNEL]->call( $_[SESSION], 'stopit' );
+        return
+      }
+      $zrequest->request( 'ping!' )
     },
 
     stopit => sub {
       $poe_kernel->alarm_remove_all;
       $zrequest->stop;
       $zreply->stop;
+    },
+
+    fail => sub {
+      $_[KERNEL]->call( $_[SESSION], 'stopit' );
+      fail "Timed out"
     },
   }
 );

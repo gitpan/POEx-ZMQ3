@@ -21,6 +21,8 @@ my $got = {};
 
 my $port = empty_port;
 
+my $alarm_id;
+
 { package
     MyZMQServer;
   use strict; use warnings qw/FATAL all/;
@@ -93,17 +95,21 @@ pass "Server created";
 
 my $client = MyZMQClient->new;
 pass "Client created";
-
+alarm 10;
 POE::Session->create(
   inline_states => {
     _start => sub {
       $server->start;
       $client->start;
+      $_[KERNEL]->sig(ALRM => 'fail');
       pass "Session created";
+    },
+    fail => sub {
+      $client->stop; $server->stop;
+      fail "Timed out"
     },
   },
 );
-## FIXME timer to shut these down if they take too long?
 
 $poe_kernel->run;
 
