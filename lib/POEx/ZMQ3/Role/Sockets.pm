@@ -1,5 +1,5 @@
 package POEx::ZMQ3::Role::Sockets;
-our $VERSION = '0.00_01';
+our $VERSION = '0.00_02';
 
 use 5.10.1;
 use Carp;
@@ -71,6 +71,8 @@ sub _create_zmq_socket_sess {
       $self => {
         _start         => '_zsock_start',
         zsock_ready    => '_zsock_ready',
+        zsock_deselect => '_zsock_deselect',
+        zsock_cleanup  => '_zsock_cleanup',
         zsock_handle_socket => '_zsock_handle_socket',
         zsock_giveup_socket => '_zsock_giveup_socket',
       },
@@ -108,6 +110,8 @@ sub create_zmq_socket {
     handle => $fh,
     fd     => $fd,
   };
+
+  $self->set_zmq_sockopt($alias, ZMQ_LINGER, 0);
 
   $poe_kernel->call( $sess_id,
     'zsock_handle_socket',
@@ -158,20 +162,14 @@ sub clear_zmq_socket {
     return
   }
 
-## Hum. Setting ZMQ_LINGER 0 seems to cause hangs, though it ought not.
-#  $self->set_zmq_sockopt($alias, ZMQ_LINGER, 0);
+  $self->_zmq_sockets->{$alias}->{closing}++;
+
   zmq_close($zsock);
 
-  $poe_kernel->call( $self->_zmq_zsock_sess,
-    'zsock_giveup_socket',
+  $poe_kernel->post( $self->_zmq_zsock_sess,  
+    'zsock_deselect',
     $alias
   );
-
-  delete $self->_zmq_sockets->{$alias};
-
-  $self->zmq_socket_cleared($alias) if $self->can('zmq_socket_cleared');
-  
-  $self
 }
 
 sub clear_all_zmq_sockets {
@@ -212,12 +210,25 @@ sub write_zmq_socket {
     return
   }
 
+  if ($self->__zmq_sock_is_closing($alias)) {
+    carp "Cannot write_zmq_socket; socket $alias is closing";
+    return
+  }
+
   ## _sendmsg creates an appropriate obj if not given one:
   if ( zmq_sendmsg( $zsock, $data, @params ) == -1 ) {
     confess "zmq_sendmsg failed: $!";
   }
 
   $self
+}
+
+
+sub __zmq_sock_is_closing {
+  my ($self, $alias) = @_;
+  return unless exists $self->_zmq_sockets->{$alias};
+  return unless $self->_zmq_sockets->{$alias}->{closing};
+  1
 }
 
 
@@ -240,18 +251,9 @@ sub _zsock_handle_socket {
   }
 }
 
-sub _zsock_giveup_socket {
-  my ($kernel, $self) = @_[KERNEL, OBJECT];
-  my $alias  = $_[ARG0];
-
-  my $ref    = $self->_zmq_sockets->{$alias} // return;
-  my $handle = $ref->{handle};
-  $kernel->select( $handle );
-}
 
 sub _zsock_ready {
   my ($self, $alias) = @_[OBJECT, ARG2];
-
   my $ref   = $self->_zmq_sockets->{$alias} // return;
 
   ## FIXME
@@ -261,6 +263,40 @@ sub _zsock_ready {
   while (my $msg = zmq_recvmsg( $ref->{zsock}, ZMQ_RCVMORE )) {
     $self->zmq_message_ready( $alias, $msg, zmq_msg_data($msg) );
   }
+}
+
+sub _zsock_deselect {
+  my ($kernel, $self) = @_[KERNEL, OBJECT];
+  my $alias = $_[ARG0];
+
+  my $handle = $self->_zmq_sockets->{$alias}->{handle};
+  $handle->flush;
+
+  $poe_kernel->post( $self->_zmq_zsock_sess,
+    'zsock_giveup_socket',
+    $handle
+  );
+
+  $poe_kernel->post( $self->_zmq_zsock_sess, 
+    'zsock_cleanup', 
+    $alias 
+  );
+  
+  $self
+}
+
+sub _zsock_giveup_socket {
+  my ($kernel, $self) = @_[KERNEL, OBJECT];
+  my $handle = $_[ARG0];
+  $kernel->select( $handle );
+  $handle->close;
+}
+
+sub _zsock_cleanup {
+  my ($kernel, $self) = @_[KERNEL, OBJECT];
+  my $alias = $_[ARG0];
+  delete $self->_zmq_sockets->{$alias};
+  $self->zmq_socket_cleared($alias) if $self->can('zmq_socket_cleared');
 }
 
 sub _zsock_start { 1 }
