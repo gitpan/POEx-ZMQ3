@@ -14,8 +14,8 @@ my $got = {};
 my $expected = {
   'got publishing_on' => 1,
   'got subscribed_to' => 1,
-  'received published'      => 100,
-  'published data looks ok' => 100,
+  'received published'      => 3,
+  'published data looks ok' => 3,
 };
 
 POE::Session->create(
@@ -23,16 +23,17 @@ POE::Session->create(
     _start => sub {
       $zpub->start( $addr );
       $zsub->start( $addr );
-      $poe_kernel->post( $zpub->session_id, 'subscribe' );
       $poe_kernel->post( $zsub->session_id, 'subscribe' );
-      $poe_kernel->delay( diediedie => 10 );
+      $poe_kernel->post( $zpub->session_id, 'subscribe' );
+      $poe_kernel->delay( diediedie => 30 => 'fatal');
     },
 
     zeromq_publishing_on => sub {
       $got->{'got publishing_on'} = 1;
-      $zpub->publish(
-        'data from ze stream'
-      ) for 1 .. 100;
+      $zpub->timer( '0.1' => sub {
+        $zpub->publish('hello listeners!');
+        $zpub->timer( '0.1' => $_[STATE] );
+      });
     },
 
     zeromq_subscribed_to => sub {
@@ -42,14 +43,15 @@ POE::Session->create(
     zeromq_recv => sub {
       $got->{'received published'}++;
       $got->{'published data looks ok'}++
-        if $_[ARG0] eq 'data from ze stream';
-      if ($got->{'received published'} == 100) {
+        if $_[ARG0] eq 'hello listeners!';
+      if ($got->{'received published'} == 3) {
         $_[KERNEL]->yield( 'diediedie' );
       }
     },
 
     diediedie => sub {
       $_[KERNEL]->alarm_remove_all;
+      fail "Timed out" if $_[ARG0];
       $zpub->stop;
       $zsub->stop;
     },

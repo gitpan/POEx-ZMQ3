@@ -45,7 +45,7 @@
    "provides" : {
       "POEx::ZMQ3" : {
          "file" : "lib/POEx/ZMQ3.pm",
-         "version" : "0.00_02"
+         "version" : "0.00_03"
       },
       "POEx::ZMQ3::Context" : {
          "file" : "lib/POEx/ZMQ3/Context.pm",
@@ -89,5 +89,5 @@
          "url" : "http://github.com/avenj/poex-zmq3.git"
       }
    },
-   "version" : "0.00_02"
+   "version" : "0.00_03"
 }

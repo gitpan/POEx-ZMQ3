@@ -71,10 +71,10 @@ sub _create_zmq_socket_sess {
       $self => {
         _start         => '_zsock_start',
         zsock_ready    => '_zsock_ready',
+        zsock_close    => '_zsock_close',
         zsock_deselect => '_zsock_deselect',
         zsock_cleanup  => '_zsock_cleanup',
         zsock_handle_socket => '_zsock_handle_socket',
-        zsock_giveup_socket => '_zsock_giveup_socket',
       },
     ],
   );
@@ -164,10 +164,8 @@ sub clear_zmq_socket {
 
   $self->_zmq_sockets->{$alias}->{closing}++;
 
-  zmq_close($zsock);
-
   $poe_kernel->post( $self->_zmq_zsock_sess,  
-    'zsock_deselect',
+    'zsock_close',
     $alias
   );
 }
@@ -256,40 +254,38 @@ sub _zsock_ready {
   my ($self, $alias) = @_[OBJECT, ARG2];
   my $ref   = $self->_zmq_sockets->{$alias} // return;
 
+  return if exists $ref->{closing};
+
   ## FIXME
   ## Hum. Handle multipart specially?
 
   ## Dispatch to consumer's handler.
-  while (my $msg = zmq_recvmsg( $ref->{zsock}, ZMQ_RCVMORE )) {
+  while ( !$ref->{closing} &&
+    (my $msg = zmq_recvmsg( $ref->{zsock}, ZMQ_RCVMORE )) ) {
     $self->zmq_message_ready( $alias, $msg, zmq_msg_data($msg) );
   }
+}
+
+sub _zsock_close {
+  my ($kernel, $self, $alias) = @_[KERNEL, OBJECT, ARG0];
+  my $zsock = $self->_zmq_sockets->{$alias}->{zsock} || return;
+  zmq_close($zsock);
+  $kernel->yield( 'zsock_deselect', $alias );
 }
 
 sub _zsock_deselect {
   my ($kernel, $self) = @_[KERNEL, OBJECT];
   my $alias = $_[ARG0];
 
-  my $handle = $self->_zmq_sockets->{$alias}->{handle};
-  $handle->flush;
+  my $handle = delete $self->_zmq_sockets->{$alias}->{handle};
+  $kernel->select_read($handle);
 
-  $poe_kernel->post( $self->_zmq_zsock_sess,
-    'zsock_giveup_socket',
-    $handle
-  );
-
-  $poe_kernel->post( $self->_zmq_zsock_sess, 
-    'zsock_cleanup', 
-    $alias 
+  ## yield back and let anything pending finish up.
+  $poe_kernel->yield( 'zsock_cleanup',
+    $alias
   );
   
   $self
-}
-
-sub _zsock_giveup_socket {
-  my ($kernel, $self) = @_[KERNEL, OBJECT];
-  my $handle = $_[ARG0];
-  $kernel->select( $handle );
-  $handle->close;
 }
 
 sub _zsock_cleanup {
@@ -349,6 +345,8 @@ See L<http://www.zeromq.org> for more about ZeroMQ.
 
 This module has been tested against B< zeromq-3.2.2 > and 
 B< ZMQ::LibZMQ3-1.03 >.
+
+
 =head2 Overrides
 
 These methods should be overriden in your consuming class:
@@ -379,17 +377,6 @@ and the raw data retrieved from the message object, respectively.
 Optional.
 
 Indicates a ZMQ socket has been cleared.
-
-
-=head2 Attributes
-
-=head3 context
-
-The B<context> attribute is the ZeroMQ context object as created by
-L<ZMQ::LibZMQ3/"zmq_init">.
-
-These objects can be shared, so long as they are reset/reconstructed 
-in any forked copies.
 
 
 =head2 Methods
