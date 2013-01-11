@@ -83,26 +83,23 @@ my $build = $class->new(
     'Carp'     => 0,
     'Storable' => 0,
 
-    ## Faster simple accessors.
-    ## You need a C compiler for ZMQ, anyway:
-    'Class::XSAccessor'         => 0,
-
     'strictures'                => 1,
     'namespace::clean'          => '0.23',
 
     'Moo'                       => '1.000003',
-    'MooX::Struct'              => '0.010',
+#    'MooX::Struct'              => '0.010',
     'MooX::Role::POE::Emitter'  => '0.10',
 
     'POE'                       => '1.3',
 
-    'Try::Tiny'                 => 0,
+#    'Try::Tiny'                 => 0,
 
     'ZMQ::LibZMQ3'              => '1.05',
     'ZMQ::Constants'            => '1.02',
   },
 
   recommends => {
+    'Class::XSAccessor'         => 0,
   },
 
   meta_merge => {

@@ -8,26 +8,38 @@ require POSIX;
 
 use ZMQ::LibZMQ3;
 ## FIXME pull specific constants
-use ZMQ::Constants ':all';
+use ZMQ::Constants 
+  ## Socket types.
+  qw/
+    ZMQ_REQ ZMQ_REP
+    ZMQ_DEALER ZMQ_ROUTER
+    ZMQ_PUB ZMQ_SUB
+    ZMQ_XPUB ZMQ_XSUB
+    ZMQ_PUSH ZMQ_PULL
+    ZMQ_PAIR
+ /,
+ ## Socket control.
+ qw/
+   ZMQ_EVENTS
+   ZMQ_FD 
+   ZMQ_LINGER
+   ZMQ_POLLIN
+   ZMQ_SUBSCRIBE
+ /,
+ ## Send/recv.
+ qw/
+   ZMQ_DONTWAIT
+   ZMQ_RCVMORE ZMQ_SNDMORE
+ /,
+ ;
 
 
 with 'MooX::Role::POE::Emitter';
 use MooX::Role::Pluggable::Constants;
 
+require POEx::ZMQ3::Sockets::ZMQSocket;
+sub ZMQSocket () { 'POEx::ZMQ3::Sockets::ZMQSocket' }
 
-use MooX::Struct -rw,
-  ZMQSocket => [ qw/
-    +is_closing
-    zsock!
-    handle!
-    fd!
-    @buffer
-  / ],
-  BufferItem => [ qw/
-    data
-    flags
-  / ],
-;
 
 require POEx::ZMQ3::Context;
 has context => (
@@ -54,7 +66,7 @@ my %stringy_types = (
   PUSH    => ZMQ_PUSH,
   PULL    => ZMQ_PULL,
 
-  PAIR => ZMQ_PAIR,
+  PAIR    => ZMQ_PAIR,
 );
 
 
@@ -162,9 +174,11 @@ sub _zpub_bind {
   my ($alias, $endpt) = @_[ARG0 .. $#_];
   confess "Expected an alias and endpoint"
     unless defined $alias and defined $endpt;
+
   my $zsock = $self->get_zmq_socket($alias)
     or confess "Cannot bind; no such alias $alias";
   zmq_bind($zsock, $endpt) and confess "zmq_bind failed; $!";
+
   $self->emit( 'bind_added', $alias, $endpt )
 }
 
@@ -179,9 +193,11 @@ sub _zpub_connect {
   my ($alias, $endpt) = @_[ARG0 .. $#_];
   confess "Expected an alias and endpoint"
     unless defined $alias and defined $endpt;
+
   my $zsock = $self->get_zmq_socket($alias)
     or confess "Cannot connect; no such alias $alias";
   zmq_connect($zsock, $endpt) and confess "zmq_connect failed; $!";
+
   $self->emit( 'connect_added', $alias, $endpt )
 }
 
@@ -197,8 +213,9 @@ sub _zpub_write {
 
   my $ref = $self->_zmq_sockets->{$alias}
     || confess "Cannot queue write; no such alias $alias";
-  my $item = BufferItem->new(data  => $data, flags => $flags);
-  $ref->buffer ? push(@{ $ref->buffer }, $item) : $ref->buffer([ $item ]);
+  my $item = ZMQSocket->new_buffer_item(data => $data, flags => $flags);
+  push @{ $ref->buffer }, $item;
+
   $self->call( 'zsock_write', $alias );
 }
 
@@ -208,7 +225,7 @@ sub _zsock_write {
   my $struct = $self->_zmq_sockets->{$alias}
     || confess "Cannot execute write; no such alias $alias";
 
-  return unless $struct->buffer and @{ $struct->buffer };
+  return unless @{ $struct->buffer };
 
   my $next  = $struct->buffer->[0];
   my $data  = $next->data;
@@ -376,7 +393,7 @@ sub _zmq_clear_all {
 
 =head1 NAME
 
-POEx::ZMQ3::Sockets - POE-enabled ZeroMQ sockets
+POEx::ZMQ3::Sockets - POE ZeroMQ Component
 
 =head1 SYNOPSIS
 
@@ -447,7 +464,8 @@ Your L<POE::Session> should register with the component to receive events:
 
 See L</POE API> for more on events emitted and accepted by this component.
 
-See L<MooX::Role::POE::Emitter> for more details on event emitters.
+See L<MooX::Role::POE::Emitter> for more details on event emitters; the
+documentation regarding event prefixes and session details lives there.
 
 =head2 Methods
 
@@ -475,7 +493,9 @@ The socket type may be either a constant from L<ZMQ::Constants> or a
 string type:
 
   ## Equivalent:
+
   $zmq->create( $alias, 'PUB' );
+
   use ZMQ::Constants 'ZMQ_PUB';
   $zmq->create( $alias, ZMQ_PUB );
 

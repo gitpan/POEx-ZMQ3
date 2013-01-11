@@ -26,15 +26,15 @@
          }
       },
       "runtime" : {
+         "recommends" : {
+            "Class::XSAccessor" : "0"
+         },
          "requires" : {
             "Carp" : "0",
-            "Class::XSAccessor" : "0",
             "Moo" : "1.000003",
             "MooX::Role::POE::Emitter" : "0.10",
-            "MooX::Struct" : "0.010",
             "POE" : "1.3",
             "Storable" : "0",
-            "Try::Tiny" : "0",
             "ZMQ::Constants" : "1.02",
             "ZMQ::LibZMQ3" : "1.05",
             "namespace::clean" : "0.23",
@@ -46,7 +46,7 @@
    "provides" : {
       "POEx::ZMQ3" : {
          "file" : "lib/POEx/ZMQ3.pm",
-         "version" : "0.00_10"
+         "version" : "0.01"
       },
       "POEx::ZMQ3::Context" : {
          "file" : "lib/POEx/ZMQ3/Context.pm",
@@ -72,12 +72,16 @@
          "file" : "lib/POEx/ZMQ3/Sockets.pm",
          "version" : 0
       },
+      "POEx::ZMQ3::Sockets::ZMQSocket" : {
+         "file" : "lib/POEx/ZMQ3/Sockets/ZMQSocket.pm",
+         "version" : 0
+      },
       "POEx::ZMQ3::Subscriber" : {
          "file" : "lib/POEx/ZMQ3/Subscriber.pm",
          "version" : 0
       }
    },
-   "release_status" : "testing",
+   "release_status" : "stable",
    "resources" : {
       "license" : [
          "http://dev.perl.org/licenses/"
@@ -86,5 +90,5 @@
          "url" : "http://github.com/avenj/poex-zmq3.git"
       }
    },
-   "version" : "0.00_10"
+   "version" : "0.01"
 }
