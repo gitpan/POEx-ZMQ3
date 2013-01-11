@@ -6,8 +6,6 @@ use Carp;
 use Moo::Role;
 use strictures 1;
 
-use IO::File;
-
 use POE;
 
 use POSIX ();
@@ -105,7 +103,7 @@ sub create_zmq_socket {
   my $fd = zmq_getsockopt( $zsock, ZMQ_FD ) 
     or confess "zmq_getsockopt failed: $!";
   ## We need an actual handle to feed POE:
-  my $fh = IO::File->new("<&=$fd")
+  open( my $fh, '<&=', $fd )
     or confess "failed dup in socket creation: $!";
 
   $self->_zmq_sockets->{$alias} = +{
@@ -254,6 +252,8 @@ sub _zsock_write {
     confess "zmq_sendmsg failed: $!";
   }
 
+  $kernel->yield( zsock_ready => undef, undef, $alias );
+
   $self
 }
 
@@ -326,7 +326,9 @@ sub _zsock_cleanup {
   $self->zmq_socket_cleared($alias) if $self->can('zmq_socket_cleared');
 }
 
-sub _zsock_start { 1 }
+sub _zsock_start {
+#  $_[KERNEL]->detach_child;
+}
 
 
 1;
@@ -491,6 +493,13 @@ L</connect_zmq_socket> or L</bind_zmq_socket> call. See the man page.
 Write raw data or a ZeroMQ message object to the specified socket alias.
 
 Optional extra params can be passed on to B<zmq_sendmsg>.
+
+Data is (attempted to be) queued with ZeroMQ immediately.
+
+=head3 write_zmq_socket_later
+
+Takes the same parameters as L</write_zmq_socket>, but yields to L<POE> prior
+to sending data to the ZeroMQ socket.
 
 =head1 SEE ALSO
 

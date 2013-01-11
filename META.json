@@ -35,7 +35,7 @@
             "Storable" : "0",
             "Try::Tiny" : "0",
             "ZMQ::Constants" : "1.02",
-            "ZMQ::LibZMQ3" : "1.03",
+            "ZMQ::LibZMQ3" : "1.05",
             "namespace::clean" : "0.23",
             "perl" : "v5.10.1",
             "strictures" : "1"
@@ -45,7 +45,7 @@
    "provides" : {
       "POEx::ZMQ3" : {
          "file" : "lib/POEx/ZMQ3.pm",
-         "version" : "0.00_04"
+         "version" : "0.00_05"
       },
       "POEx::ZMQ3::Context" : {
          "file" : "lib/POEx/ZMQ3/Context.pm",
@@ -89,5 +89,5 @@
          "url" : "http://github.com/avenj/poex-zmq3.git"
       }
    },
-   "version" : "0.00_04"
+   "version" : "0.00_05"
 }
