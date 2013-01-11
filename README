@@ -13,6 +13,9 @@ DESCRIPTION
     <http://github.com/avenj/poex-zmq3>
 
   Classes
+    POEx::ZMQ3::Sockets is the backend ZMQ component. It can be used
+    directly to add ZeroMQ functionality to your POE applications.
+
     POEx::ZMQ3::Publisher and POEx::ZMQ3::Subscriber implement PUB and SUB
     type ZeroMQ sockets.
 
@@ -22,14 +25,8 @@ DESCRIPTION
     These are very simple base implementations.
 
   Roles
-    POEx::ZMQ3::Role::Sockets is the basic asynchronous POE interface to
-    ZMQ::LibZMQ3 sockets; it can be used to add ZeroMQ sockets to any Moo
-    class.
-
-    POEx::ZMQ3::Role::Endpoints adds a layer of easy ZMQ socket
-    endpoint/target management to POEx::ZMQ3::Role::Sockets.
-
-    MooX::Role::POE::Emitter provides POE event emitter functionality.
+    MooX::Role::POE::Emitter provides POE event emitter functionality and
+    some endpoint management methods.
 
 SEE ALSO
     ZMQ::LibZMQ3

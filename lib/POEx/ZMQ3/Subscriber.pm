@@ -2,48 +2,59 @@ package POEx::ZMQ3::Subscriber;
 
 use Carp;
 use Moo;
+use POE;
 
-use ZMQ::Constants
-  'ZMQ_SUB',
-  'ZMQ_SUBSCRIBE',
-;
+use namespace::clean;
+
+has targets => (
+  is => 'rw',
+  default => sub { [] },
+);
 
 sub ZALIAS () { 'sub' }
 
 with 'POEx::ZMQ3::Role::Emitter';
-with 'POEx::ZMQ3::Role::Endpoints';
 
 
 sub start {
   my ($self, @targets) = @_;
+  push @{ $self->targets }, @targets;
+  $self->zmq->start;
+  $self->zmq->create( ZALIAS, 'SUB' );
+
   $self->_start_emitter;
+}
 
-  $self->create_zmq_socket( ZALIAS, ZMQ_SUB );
-  for my $target (@targets) {
-    $self->add_target_endpoint( ZALIAS, $target );
-  }
+sub emitter_started {
+  my ($kernel, $self) = @_[KERNEL, OBJECT];
 
-  ## Subscribe to all by default:
-  $self->set_zmq_sockopt( ZALIAS, ZMQ_SUBSCRIBE, '' );
+  $poe_kernel->call( $self->zmq->session_id, subscribe => 'all' );
+
+  $self->zmq->set_zmq_subscribe( ZALIAS );
+  $self->add_connect( ZALIAS, $_ ) for @{ $self->targets };
+  $self->targets([]);
 
   $self
 }
 
-after add_target_endpoint => sub {
+after add_connect => sub {
   my ($self, $alias, $target) = @_;
   $self->emit( 'subscribed_to', $target )
 };
 
 sub stop {
   my ($self) = @_;
-  $self->emit( 'stopped' );
-  $self->clear_zmq_socket( ZALIAS );
+  $self->zmq->stop;
   $self->_stop_emitter;
 }
 
-sub zmq_message_ready {
-  my ($self, $alias, $zmsg, $data) = @_;
-  $self->emit( 'recv', $data )
+sub zmqsock_registered {}
+sub zmqsock_created {}
+
+sub zmqsock_recv {
+  my ($kernel, $self) = @_[KERNEL, OBJECT];
+  my ($alias, undef, $data) = @_[ARG0 .. $#_];
+  $self->emit( 'received', $data )
 }
 
 1;
@@ -81,7 +92,7 @@ POEx::ZMQ3::Subscriber - A SUB-type ZeroMQ socket
         print "Subscribed to $target\n";
       },
 
-      zeromq_recv => {
+      zeromq_received => {
         my $data = $_[ARG0];
         print "Received $data from publisher\n";
 
@@ -100,10 +111,9 @@ POEx::ZMQ3::Subscriber - A SUB-type ZeroMQ socket
 =head1 DESCRIPTION
 
 A lightweight ZeroMQ subscriber-type socket using
-L<POEx::ZMQ3::Role::Endpoints> and L<MooX::Role::POE::Emitter> (see their
-respective documentation for relevant methods).
+L<POEx::ZMQ3::Role::Emitter>.
 
-This is a simple subscriber; it indiscriminately receives all published
+This is a simple subscriber; by default it indiscriminately receives all published
 messages without filtering.
 
 =head2 Methods
@@ -126,7 +136,7 @@ Stop the Subscriber, closing out the socket and stopping the event emitter.
 
 Emitted when we are initialized; $_[ARG0] is the target publisher's address.
 
-=head3 zeromq_recv
+=head3 zeromq_received
 
 Emitted when we receive data from the publisher we are subscribed to; $_[ARG0]
 is the (raw) data received. (No special handling of multipart messages

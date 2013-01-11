@@ -1,5 +1,6 @@
 package POEx::ZMQ3::Context;
 use strictures 1;
+use Carp 'confess';
 
 use ZMQ::LibZMQ3 'zmq_ctx_new', 'zmq_ctx_destroy';
 
@@ -12,7 +13,7 @@ sub new {
 }
 
 sub _new {
-  zmq_ctx_new(1)
+  zmq_ctx_new(1) or confess "zmq_ctx_new failed: $!"
 }
 
 sub term {
@@ -52,6 +53,9 @@ This is the singleton used internally by L<POEx::ZMQ3> bits.
 
 Forked children should call C<< POEx::ZMQ3::Context->reset >> before 
 issuing new socket operations.
+
+Calling C<< POEx::ZMQ::Context->term >> will force a context termination.
+This may block (and is rarely needed); see the man page for zmq_ctx_destroy.
 
 =head1 AUTHOR
 

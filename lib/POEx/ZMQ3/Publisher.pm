@@ -1,60 +1,51 @@
 package POEx::ZMQ3::Publisher;
 
+use Carp;
 use Moo;
+use POE;
 
-use ZMQ::Constants
-  'ZMQ_PUB',
-  'ZMQ_SNDMORE'
-;
+use namespace::clean;
+
 
 sub ZALIAS () { 'pub' }
 
 with 'POEx::ZMQ3::Role::Emitter';
-with 'POEx::ZMQ3::Role::Endpoints';
-
 
 sub start {
   my ($self, @endpoints) = @_;
+  $self->zmq->start;
+  $self->zmq->create( ZALIAS, 'PUB' );
   $self->_start_emitter;
-  $self->create_zmq_socket( ZALIAS, ZMQ_PUB );
-  $self->add_endpoint( ZALIAS, $_ ) for @endpoints;
+  $self->add_bind( ZALIAS, $_ ) for @endpoints;
   $self
 }
 
-after add_endpoint => sub {
+after add_bind => sub {
   my ($self, $alias, $endpoint) = @_;
   $self->emit( 'publishing_on', $endpoint );
 };
 
 sub stop {
   my ($self) = @_;
-  $self->emit( 'stopped' );
-  $self->clear_zmq_socket( ZALIAS );
+  $self->zmq->stop;
   $self->_stop_emitter;
-  $self
 }
 
 sub publish {
   my ($self, @data) = @_;
-  $self->write_zmq_socket_later( ZALIAS, $_ ) for @data;
-  $self
+  $self->zmq->write( ZALIAS, $_ ) for @data;
 }
 
 sub publish_multipart {
   my ($self, @data) = @_;
-  $self->yield(sub {
-    while (my $data = shift @data) {
-      $self->write_zmq_socket(
-        ZALIAS, $data, (@data ? ZMQ_SNDMORE : () ) 
-      )
-    }
-  });
-  $self
+  ## FIXME
 }
 
-sub zmq_message_ready {
-  ## A Publisher is one-way.
-}
+sub emitter_started {}
+sub zmqsock_created {}
+sub zmqsock_registered {}
+sub zmqsock_recv {}
+
 
 1;
 
@@ -109,9 +100,7 @@ POEx::ZMQ3::Publisher - A PUB-type ZeroMQ socket
 
 =head1 DESCRIPTION
 
-A lightweight ZeroMQ publisher-type socket using
-L<POEx::ZMQ3::Role::Endpoints> and L<MooX::Role::POE::Emitter> (see their
-respective documentation for relevant methods).
+A lightweight ZeroMQ publisher-type socket using L<POEx::ZMQ3::Role::Emitter>.
 
 =head2 Methods
 
@@ -134,14 +123,6 @@ Stop the Publisher, closing out the socket and stopping the event emitter.
 Publish some item(s) to the ZeroMQ socket.
 
 This base class does no special serialization on its own.
-
-=head3 publish_multipart
-
-  $zsub->publish_multipart( $envelope, @data );
-
-Publish a multipart message.
-
-See the ZeroMQ documentation for more on multipart messages.
 
 =head2 Events
 
