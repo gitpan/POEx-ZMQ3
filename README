@@ -3,9 +3,10 @@ NAME
 
 SYNOPSIS
       use POEx::ZMQ3;
+      ## A POEx::ZMQ3::Sockets instance:
       my $zmq = POEx::ZMQ3->new;
 
-    (See POEx::ZMQ3::Sockets for a more complete example.)
+    (See POEx::ZMQ3::Sockets for a complete example.)
 
 DESCRIPTION
     A set of roles and classes providing a POE-enabled asynchronous
@@ -16,9 +17,9 @@ DESCRIPTION
     with ZeroMQ, it is strongly advised you read the 'zguide'
     (<http://zguide.zeromq.org>) before jumping in.)
 
-    This is an early development release; interfaces are potentially subject
-    to change. Help would be welcome, of course -- jump in on GitHub:
-    <http://github.com/avenj/poex-zmq3>
+    This project attempts to stay on top of changes in ZeroMQ and the
+    relevant Perl bindings. You will need zeromq-3.2.2 or newer:
+    <http://www.zeromq.org>
 
   Classes
     POEx::ZMQ3::Sockets is the backend ZMQ component. It can be used
