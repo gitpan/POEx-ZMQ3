@@ -7,15 +7,17 @@ use POE;
 require POSIX;
 
 use ZMQ::LibZMQ3;
-## FIXME pull specific constants
 use ZMQ::Constants 
   ## Socket types.
   qw/
     ZMQ_REQ ZMQ_REP
     ZMQ_DEALER ZMQ_ROUTER
+
     ZMQ_PUB ZMQ_SUB
     ZMQ_XPUB ZMQ_XSUB
+
     ZMQ_PUSH ZMQ_PULL
+
     ZMQ_PAIR
  /,
  ## Socket control.
@@ -39,7 +41,6 @@ use MooX::Role::Pluggable::Constants;
 
 require POEx::ZMQ3::Sockets::ZMQSocket;
 sub ZMQSocket () { 'POEx::ZMQ3::Sockets::ZMQSocket' }
-
 
 require POEx::ZMQ3::Context;
 has context => (
@@ -112,7 +113,9 @@ sub start {
 sub stop {
   my ($self) = @_;
   $self->_zmq_clear_all;
-  $self->yield( 'shutdown_emitter' );
+  ## Yes, I'm serious.
+  ## (Gives zmq a little extra cleanup time after zmq_close.)
+  $self->yield(sub { $_[OBJECT]->yield('shutdown_emitter') });
 }
 
 sub emitter_started {
@@ -226,6 +229,7 @@ sub _zpub_write_multi {
     );
     push @{ $ref->buffer }, $item;
   }
+  ## These are call()ed, as we likely were already reached via yield/post:
   $self->call( 'zsock_write', $alias )
 }
 
@@ -325,7 +329,9 @@ sub _zsock_ready {
     my $data = zmq_msg_data($msg);
 
     unless ( zmq_getsockopt($struct->zsock, ZMQ_RCVMORE) ) {
+      ## No parts remaining on socket.
       if (@parts) {
+        ## Multi-part message accumulated.
         $self->emit( multipart_recv => 
           $alias, [ @parts, $data ] 
         )
@@ -337,8 +343,7 @@ sub _zsock_ready {
       }
       last RECV
     }
-
-    ## More parts to follow.
+    ## Multi-part with more parts to follow.
     push @parts, $data;
   }
 

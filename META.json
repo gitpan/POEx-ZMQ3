@@ -31,8 +31,8 @@
          },
          "requires" : {
             "Carp" : "0",
-            "Moo" : "1.000003",
-            "MooX::Role::POE::Emitter" : "0.10",
+            "Moo" : "1.000007",
+            "MooX::Role::POE::Emitter" : "0.11",
             "POE" : "1.3",
             "Storable" : "0",
             "ZMQ::Constants" : "1.02",
@@ -46,7 +46,7 @@
    "provides" : {
       "POEx::ZMQ3" : {
          "file" : "lib/POEx/ZMQ3.pm",
-         "version" : "0.02"
+         "version" : "0.03"
       },
       "POEx::ZMQ3::Context" : {
          "file" : "lib/POEx/ZMQ3/Context.pm",
@@ -90,5 +90,5 @@
          "url" : "http://github.com/avenj/poex-zmq3.git"
       }
    },
-   "version" : "0.02"
+   "version" : "0.03"
 }
