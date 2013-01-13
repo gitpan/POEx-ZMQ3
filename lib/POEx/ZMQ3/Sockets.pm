@@ -247,7 +247,7 @@ sub _zpub_write {
 
 sub _zsock_write {
   my ($kernel, $self) = @_[KERNEL, OBJECT];
-  my $alias = $_[ARG0];
+  my $alias  = $_[ARG0];
   my $struct = $self->_zmq_sockets->{$alias}
     || confess "Cannot execute write; no such alias $alias";
 
@@ -401,23 +401,19 @@ sub _zsock_watch {
 
 sub _zsock_unwatch {
   my ($kernel, $self, $alias) = @_[KERNEL, OBJECT, ARG0];
-  my $struct = delete $self->_zmq_sockets->{$alias};
-  $kernel->select( $struct->handle );
-  ## Keeping us alive just a hair longer helps with flaky 'bad FD' errs.
-  ## This generally only shows up when running tests.
-  ## (They appear to exit before ZeroMQ has finished cleanup.)
-  $self->yield(sub { $struct });
+  my $struct = $self->_zmq_sockets->{$alias};
+  ## Deferred destruction eliminates 'bad FD' at exit.
+  $self->yield(sub { $_[KERNEL]->select( $struct->handle ) });
+  $self->yield(sub { delete $_[OBJECT]->_zmq_sockets->{$alias} });
 }
 
 sub _zmq_clear_sock {
   my ($self, $alias) = @_;
-
   my $zsock = $self->get_zmq_socket($alias)
     or confess "Cannot _zmq_clear_sock; no such alias $alias";
 
   zmq_close($zsock);
   $self->_zmq_sockets->{$alias}->is_closing(1);
-  
   $self->yield( zsock_unwatch => $alias )
 }
 
