@@ -35,7 +35,9 @@ DESCRIPTION
     sockets.
 
     These are very simple base implementations. They can be subclassed or
-    combined in varied ways to do more powerful things.
+    combined in varied ways to do more powerful things. As of this writing,
+    more advanced socket types are lacking component classes, but these can
+    be easily implemented with POEx::ZMQ3::Sockets.
 
   Roles
     MooX::Role::POE::Emitter provides POE event emitter functionality and

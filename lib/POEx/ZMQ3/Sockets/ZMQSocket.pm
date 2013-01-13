@@ -45,20 +45,18 @@ has buffer => (
 
   sub new {
     my ($class, %params) = @_;
-    my $self = [
+    bless [
       ( $params{data} // confess 'Expected "data" parameter' ),
       $params{flags}
-    ];
-    bless $self, $class
+    ], $class
   }
 
   sub data  { $_[0]->[DATA]  }
   sub flags { $_[0]->[FLAGS] }
 }
 
-sub new_buffer_item {
-  my $self = shift;
-  POEx::ZMQ3::Sockets::ZMQSocket::_BUF->new(@_)
+sub new_buffer_item { 
+  POEx::ZMQ3::Sockets::ZMQSocket::_BUF->new( @_[1 .. $#_] )
 }
 
 

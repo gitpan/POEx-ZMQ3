@@ -1,6 +1,24 @@
 package POEx::ZMQ3;
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 use strictures 1;
+use Carp;
+
+sub import {
+  my ($self, @modules) = @_;
+  my $pkg = caller;
+
+  my @failed;
+  for my $mod (@modules) {
+    my $c = "package $pkg; use POEx::ZMQ3::$mod;";
+    eval $c;
+    if ($@) { carp $@; push @failed, $mod }
+  }
+  
+  confess "Failed to import ".join ' ', @failed if @failed;
+  
+  1
+}
+
 
 sub new {
   my $class = shift;
@@ -54,7 +72,9 @@ L<POEx::ZMQ3::Requestor> and L<POEx::ZMQ3::Replier> implement REQ and REP type
 sockets.
 
 These are very simple base implementations. They can be subclassed or combined
-in varied ways to do more powerful things.
+in varied ways to do more powerful things. 
+As of this writing, more advanced socket types are lacking component classes,
+but these can be easily implemented with L<POEx::ZMQ3::Sockets>.
 
 =head2 Roles
 
