@@ -1,6 +1,6 @@
 package POEx::ZMQ3::Sockets;
 {
-  $POEx::ZMQ3::Sockets::VERSION = '0.060001';
+  $POEx::ZMQ3::Sockets::VERSION = '0.060002';
 }
 
 use 5.10.1;

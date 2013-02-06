@@ -1,6 +1,6 @@
 package POEx::ZMQ3::Context;
 {
-  $POEx::ZMQ3::Context::VERSION = '0.060001';
+  $POEx::ZMQ3::Context::VERSION = '0.060002';
 }
 use strictures 1;
 use Carp 'confess';

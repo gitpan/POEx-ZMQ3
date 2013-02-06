@@ -28,4 +28,4 @@ requires:
   strictures: 1
 resources:
   repository: git://github.com/avenj/poex-zmq3.git
-version: 0.060001
+version: 0.060002
