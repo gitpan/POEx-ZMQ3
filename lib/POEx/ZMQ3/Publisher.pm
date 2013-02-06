@@ -1,4 +1,7 @@
 package POEx::ZMQ3::Publisher;
+{
+  $POEx::ZMQ3::Publisher::VERSION = '0.060001';
+}
 
 use Carp;
 use Moo;

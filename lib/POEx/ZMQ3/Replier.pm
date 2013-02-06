@@ -1,4 +1,7 @@
 package POEx::ZMQ3::Replier;
+{
+  $POEx::ZMQ3::Replier::VERSION = '0.060001';
+}
 
 use Carp;
 use Moo;

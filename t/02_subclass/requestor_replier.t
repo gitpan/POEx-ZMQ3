@@ -1,6 +1,7 @@
 use Test::More;
-use Test::TCP 'empty_port';
-my $addr = 'tcp://127.0.0.1:' . empty_port;
+use strict; use warnings qw/FATAL all/;
+
+my $addr = 'inproc://repreqtest2';
 
 use POE;
 
@@ -16,10 +17,10 @@ my $got = {};
 my $expected = {
   'got connected_to' => 1,
   'got replying_on'  => 1,
-  'got got_request'  => 100,
-  'request looks ok' => 100,
-  'got got_reply'    => 100,
-  'reply looks ok'   => 100,
+  'got got_request'  => 10,
+  'request looks ok' => 10,
+  'got got_reply'    => 10,
+  'reply looks ok'   => 10,
 };
 
 alarm 10;
@@ -54,7 +55,7 @@ POE::Session->create(
       $got->{'reply looks ok'}++
         if $_[ARG0] eq 'pong!';
 
-      if ($got->{'got got_reply'} == 100) {
+      if ($got->{'got got_reply'} == $expected->{'got got_reply'}) {
         $_[KERNEL]->call( $_[SESSION], 'stopit' );
         return
       }

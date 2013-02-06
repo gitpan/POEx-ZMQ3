@@ -1,5 +1,5 @@
 package POEx::ZMQ3;
-our $VERSION = '0.05';
+our $VERSION = '0.05_01';
 use strictures 1;
 use Carp;
 
@@ -80,6 +80,14 @@ but these can be easily implemented with L<POEx::ZMQ3::Sockets>.
 
 L<MooX::Role::POE::Emitter> provides L<POE> event emitter functionality and
 some endpoint management methods.
+
+=head1 CAVEATS
+
+=head2 Forking
+
+If your application forks, the global context object needs to be reset by 
+calling C<< POEx::ZMQ3::Context->reset >> before creating sockets. 
+See L<POEx::ZMQ3::Context>.
 
 =head1 BUGS
 

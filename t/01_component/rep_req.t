@@ -1,8 +1,7 @@
 use Test::More;
 use strict; use warnings qw/FATAL all/;
 use 5.10.1;
-use Test::TCP 'empty_port';
-my $addr = 'tcp://127.0.0.1:'.empty_port;
+my $addr = 'inproc://repreqtest';
 
 use POE;
 
@@ -10,8 +9,8 @@ use_ok 'POEx::ZMQ3::Sockets';
 
 my $got = {};
 my $expected = {
-  'REP got request' => 200,
-  'REQ got reply'   => 200,
+  'REP got request' => 10,
+  'REQ got reply'   => 10,
 };
 POE::Session->create(
   heap => POEx::ZMQ3::Sockets->new,

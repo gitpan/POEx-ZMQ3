@@ -1,4 +1,7 @@
 package POEx::ZMQ3::Subscriber;
+{
+  $POEx::ZMQ3::Subscriber::VERSION = '0.060001';
+}
 
 use Carp;
 use Moo;

@@ -1,4 +1,7 @@
 package POEx::ZMQ3::Sockets;
+{
+  $POEx::ZMQ3::Sockets::VERSION = '0.060001';
+}
 
 use 5.10.1;
 use Carp;
@@ -414,7 +417,8 @@ sub _zmq_clear_sock {
 
   zmq_close($zsock);
   $self->_zmq_sockets->{$alias}->is_closing(1);
-  $self->yield( zsock_unwatch => $alias )
+  $self->_zmq_sockets->{$alias}->buffer([]);
+  $self->yield( zsock_unwatch => $alias );
 }
 
 sub _zmq_clear_all {
