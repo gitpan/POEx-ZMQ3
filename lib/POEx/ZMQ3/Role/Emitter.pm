@@ -1,6 +1,6 @@
 package POEx::ZMQ3::Role::Emitter;
 {
-  $POEx::ZMQ3::Role::Emitter::VERSION = '0.060002';
+  $POEx::ZMQ3::Role::Emitter::VERSION = '0.060003';
 }
 
 use Carp;

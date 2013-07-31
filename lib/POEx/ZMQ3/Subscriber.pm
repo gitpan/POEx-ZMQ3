@@ -1,6 +1,6 @@
 package POEx::ZMQ3::Subscriber;
 {
-  $POEx::ZMQ3::Subscriber::VERSION = '0.060002';
+  $POEx::ZMQ3::Subscriber::VERSION = '0.060003';
 }
 
 use Carp;
