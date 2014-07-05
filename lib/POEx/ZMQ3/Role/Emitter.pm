@@ -1,19 +1,16 @@
 package POEx::ZMQ3::Role::Emitter;
-{
-  $POEx::ZMQ3::Role::Emitter::VERSION = '0.060003';
-}
-
+$POEx::ZMQ3::Role::Emitter::VERSION = '0.060004';
 use Carp;
 use POE;
-use Moo::Role;
-
-use namespace::clean;
 
 use POEx::ZMQ3::Sockets;
+
+
+use Moo::Role;
 with 'MooX::Role::POE::Emitter';
 
-
 requires 'start', 'stop';
+
 
 has defined_states => (
   is      => 'ro',
@@ -106,14 +103,20 @@ sub _stop_emitter { shift->_shutdown_emitter(@_) }
 
 =pod
 
+=for Pod::Coverage build_defined_states defined_states
+
 =head1 NAME
 
 POEx::ZMQ3::Role::Emitter - Event emitter for POEx::ZMQ3::Sockets
 
 =head1 SYNOPSIS
 
-Primarily used internally; the following public methods are provided to
-consumers:
+  # Primarily used internally; the following public methods are provided to
+  # consumers:
+
+  my $component = My::ZMQ::Session->new;
+  my $alias     = 'myalias';
+  my $endpoint  = 'tcp://127.0.0.1:1234';
 
   $component->add_bind( $alias, $endpoint );
   $component->add_connect( $alias, $endpoint );

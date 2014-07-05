@@ -3,23 +3,22 @@ NAME
 
 SYNOPSIS
       use POEx::ZMQ3;
-      ## A POEx::ZMQ3::Sockets instance:
+      # A POEx::ZMQ3::Sockets instance:
       my $zmq = POEx::ZMQ3->new;
-
-    (See POEx::ZMQ3::Sockets for a complete example.)
+      # See POEx::ZMQ3::Sockets for a complete example.
 
 DESCRIPTION
     A set of roles and classes providing a POE-enabled asynchronous
     interface to ZeroMQ (version 3) via ZMQ::LibZMQ3.
 
     ZeroMQ is a powerful high-performance messaging library aimed at
-    concurrent/distributed applications. (If you're just getting started
-    with ZeroMQ, it is strongly advised you read the 'zguide'
-    (<http://zguide.zeromq.org>) before jumping in.)
+    concurrent/distributed applications. If you're just getting started with
+    ZeroMQ, it is strongly advised you read the zguide
+    (<http://zguide.zeromq.org>) before jumping in.
 
-    This project attempts to stay on top of changes in ZeroMQ and the
-    relevant Perl bindings. You will need zeromq-3.2.2 or newer:
-    <http://www.zeromq.org>
+    You will need zeromq-3.2.2 or newer: <http://www.zeromq.org>
+
+    This is early development software; see "BUGS".
 
   Classes
     POEx::ZMQ3::Sockets is the backend ZMQ component. It can be used
@@ -50,7 +49,8 @@ CAVEATS
     POEx::ZMQ3::Context.
 
 BUGS
-    Probably many; this software is fairly early in development.
+    Probably many undiscovered; this software is fairly early in
+    development.
 
     See <http://github.com/avenj/poex-zmq3> and feel free to report bugs via
     either RT or GitHub.

@@ -1,15 +1,12 @@
 package POEx::ZMQ3::Requestor;
-{
-  $POEx::ZMQ3::Requestor::VERSION = '0.060003';
-}
-
+$POEx::ZMQ3::Requestor::VERSION = '0.060004';
 use Carp;
-use Moo;
 use POE;
 
-use namespace::clean;
 
+use Moo;
 with 'POEx::ZMQ3::Role::Emitter';
+
 
 has targets => (
   is => 'ro',
@@ -75,6 +72,8 @@ sub zmqsock_recv {
 1;
 
 =pod
+
+=for Pod::Coverage build_defined_states emitter_started zmqsock.+
 
 =head1 NAME
 
@@ -157,6 +156,12 @@ Emitted when we are initialized; $_[ARG0] is the target REP server's address.
 =head3 zeromq_got_reply
 
 Emitted when we receive a reply to a request; $_[ARG0] is the raw data.
+
+=head2 Attributes
+
+=head3 targets
+
+An ARRAY of endpoints the Requestor was configured with; see L</start>.
 
 =head1 SEE ALSO
 

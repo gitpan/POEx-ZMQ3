@@ -1,20 +1,23 @@
 package POEx::ZMQ3::Replier;
-{
-  $POEx::ZMQ3::Replier::VERSION = '0.060003';
-}
-
+$POEx::ZMQ3::Replier::VERSION = '0.060004';
 use Carp;
-use Moo;
 use POE;
 
-use namespace::clean;
 
+use Moo;
 with 'POEx::ZMQ3::Role::Emitter';
+
 
 has listen => (
   is => 'ro',
   default => sub { [] },
 );
+
+=pod
+
+=for Pod::Coverage build_defined_states emitter_started zmqsock_recv
+
+=cut
 
 sub build_defined_states {
   my ($self) = @_;
@@ -150,6 +153,13 @@ requests on.
 =head3 zeromq_got_request
 
 Emitted when a request arrives; $_[ARG0] is the raw data.
+
+=head2 Attributes
+
+=head3 listen
+
+An ARRAY containing the list of endpoints the Replier was configured to listen on
+(see L</start>).
 
 =head1 SEE ALSO
 

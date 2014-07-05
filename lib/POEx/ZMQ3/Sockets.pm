@@ -1,13 +1,11 @@
 package POEx::ZMQ3::Sockets;
-{
-  $POEx::ZMQ3::Sockets::VERSION = '0.060003';
-}
-
+$POEx::ZMQ3::Sockets::VERSION = '0.060004';
 use 5.10.1;
 use Carp;
-use Moo;
 use POE;
-require POSIX;
+use POSIX ();
+
+use MooX::Role::Pluggable::Constants;
 
 use ZMQ::LibZMQ3;
 use ZMQ::Constants 
@@ -39,11 +37,13 @@ use ZMQ::Constants
  ;
 
 
-with 'MooX::Role::POE::Emitter';
-use MooX::Role::Pluggable::Constants;
-
 require POEx::ZMQ3::Sockets::ZMQSocket;
 sub ZMQSocket () { 'POEx::ZMQ3::Sockets::ZMQSocket' }
+
+
+use Moo;
+with 'MooX::Role::POE::Emitter';
+
 
 require POEx::ZMQ3::Context;
 has context => (
@@ -208,6 +208,13 @@ sub _zpub_connect {
   $self->emit( 'connect_added', $alias, $endpt )
 }
 
+#sub monitor {
+  # FIXME
+  #  Call zmq_socket_monitor (if we have it)
+  #  Talk to our own inproc:// monitor socket (module for same?)
+  #  Translate to POE events (provide monitor as an emitter?)
+  #  Return monitor socket instance?
+#}
 
 sub write {
   my $self = shift;
@@ -275,6 +282,9 @@ sub _zsock_write {
     unless ($rc == POSIX::EAGAIN || $rc == POSIX::EINTR) {
       confess "zmq_msg_send failed; $!";
     }
+
+    # FIXME provide higher-level HWM interface(s),
+    #  manage struct->buffer appropriately?
   } else {
     ## Successfully queued on socket.
     shift @{ $struct->buffer }
@@ -405,7 +415,8 @@ sub _zsock_watch {
 sub _zsock_unwatch {
   my ($kernel, $self, $alias) = @_[KERNEL, OBJECT, ARG0];
   my $struct = $self->_zmq_sockets->{$alias};
-  ## Deferred destruction eliminates 'bad FD' at exit.
+  ## There is a race condition in some ZMQ versions that results in 'bad FD'
+  ## assertions when exiting; deferred destruction helps:
   $self->yield(sub { $_[KERNEL]->select( $struct->handle ) });
   $self->yield(sub { delete $_[OBJECT]->_zmq_sockets->{$alias} });
 }
@@ -430,6 +441,8 @@ sub _zmq_clear_all {
 
 
 =pod
+
+=for Pod::Coverage BUILD ZMQSocket emitter_\w+
 
 =head1 NAME
 
@@ -480,7 +493,7 @@ POEx::ZMQ3::Sockets - POE ZeroMQ Component
 
     if ($data eq 'PONG') {
       ## Got a PONG. Send another PING:
-      $zmq->write( 'pinger', 'PING' );
+      $heap->{zmq}->write( 'pinger', 'PING' );
     }
   }
 

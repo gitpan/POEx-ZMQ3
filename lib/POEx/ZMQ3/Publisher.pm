@@ -1,17 +1,14 @@
 package POEx::ZMQ3::Publisher;
-{
-  $POEx::ZMQ3::Publisher::VERSION = '0.060003';
-}
-
+$POEx::ZMQ3::Publisher::VERSION = '0.060004';
 use Carp;
-use Moo;
 use POE;
 
-use namespace::clean;
 
+use Moo;
 with 'POEx::ZMQ3::Role::Emitter';
 
-sub build_defined_states {[]}
+
+sub build_defined_states { [] }
 
 sub start {
   my ($self, @endpoints) = @_;
@@ -46,6 +43,8 @@ sub publish_multipart {
 1;
 
 =pod
+
+=for Pod::Coverage build_defined_states
 
 =head1 NAME
 

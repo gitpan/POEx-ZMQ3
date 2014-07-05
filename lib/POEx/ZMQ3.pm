@@ -1,7 +1,5 @@
 package POEx::ZMQ3;
-{
-  $POEx::ZMQ3::VERSION = '0.060003';
-}
+$POEx::ZMQ3::VERSION = '0.060004';
 use strictures 1;
 use Carp;
 
@@ -21,6 +19,11 @@ sub import {
   1
 }
 
+=pod
+
+=for Pod::Coverage new
+
+=cut
 
 sub new {
   my $class = shift;
@@ -40,10 +43,9 @@ POEx::ZMQ3 - POE-enabled asynchronous ZeroMQ components
 =head1 SYNOPSIS
 
   use POEx::ZMQ3;
-  ## A POEx::ZMQ3::Sockets instance:
+  # A POEx::ZMQ3::Sockets instance:
   my $zmq = POEx::ZMQ3->new;
-
-(See L<POEx::ZMQ3::Sockets> for a complete example.)
+  # See POEx::ZMQ3::Sockets for a complete example.
 
 =head1 DESCRIPTION
 
@@ -51,13 +53,13 @@ A set of roles and classes providing a L<POE>-enabled asynchronous interface
 to B<ZeroMQ> (version 3) via L<ZMQ::LibZMQ3>.
 
 ZeroMQ is a powerful high-performance messaging library aimed at
-concurrent/distributed applications. (If you're just getting started with
-ZeroMQ, it is strongly advised you read the 'zguide'
-(L<http://zguide.zeromq.org>) before jumping in.)
+concurrent/distributed applications. If you're just getting started with
+ZeroMQ, it is strongly advised you read the B<zguide>
+(L<http://zguide.zeromq.org>) before jumping in.
 
-This project attempts to stay on top of changes in ZeroMQ and the relevant
-Perl bindings. 
 You will need B<zeromq-3.2.2> or newer: L<http://www.zeromq.org>
+
+This is early development software; see L</BUGS>.
 
 =head2 Classes
 
@@ -93,7 +95,7 @@ See L<POEx::ZMQ3::Context>.
 
 =head1 BUGS
 
-Probably many; this software is fairly early in development.
+Probably many undiscovered; this software is fairly early in development.
 
 See L<http://github.com/avenj/poex-zmq3> and feel free to report bugs via
 either B<RT> or B<GitHub>.

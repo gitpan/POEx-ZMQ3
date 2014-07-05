@@ -1,7 +1,5 @@
 package POEx::ZMQ3::Context;
-{
-  $POEx::ZMQ3::Context::VERSION = '0.060003';
-}
+$POEx::ZMQ3::Context::VERSION = '0.060004';
 use strictures 1;
 use Carp 'confess';
 
@@ -12,6 +10,8 @@ sub new {
   $class = ref $class || $class;
   no strict 'refs';
   my $this = \${$class.'::_ctxt_obj'};
+  # Returns the actual ZMQ::LibZMQ3 context object
+  # (this class can't be instanced)
   defined $$this ? $$this : ( $$this = $class->_new(@_) )
 }
 
@@ -44,9 +44,12 @@ POEx::ZMQ3::Context - A ZMQ context singleton
 
 =head1 SYNOPSIS
 
-  ## ::Context->new() returns (lazy build) singleton:
-  my $zsock = zmq_socket( POEx::ZMQ3::Context->new, $type );
-  ## ... if you fork later:
+  my $zsock = zmq_socket( 
+    # ->new() returns a (lazily built) singleton:
+    POEx::ZMQ3::Context->new, 
+    'REQ' 
+  );
+  # ... if you fork later:
   POEx::ZMQ3::Context->reset;
 
 =head1 DESCRIPTION
@@ -62,6 +65,27 @@ issuing new socket operations.
 
 Calling C<< POEx::ZMQ::Context->term >> will force a context termination.
 This may block (and is rarely needed); see the man page for zmq_ctx_destroy.
+
+=head2 METHODS
+
+=head3 new
+
+Retrieves the L<ZMQ::LibZMQ3> context object for the current interpreter.
+
+The object is a singleton; if it doesn't exist when C<new> is called, it will
+be created.
+
+=head3 reset
+
+Clears (but does not forcibly terminate, see L</term>) the current context
+object.
+
+Should be called in forked children to gain a fresh context object on the next
+call to L</new>.
+
+=head3 term
+
+Force a context termination; calls L</reset> before issuing a C<zmq_ctx_destroy(3)>.
 
 =head1 AUTHOR
 

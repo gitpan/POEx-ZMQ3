@@ -7,14 +7,12 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300035, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Dist::Zilla version 5.019, CPAN::Meta::Converter version 2.141520'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: POEx-ZMQ3
-recommends:
-  Class::XSAccessor: 1.05
 requires:
   Carp: 0
   Moo: 1.000007
@@ -25,9 +23,8 @@ requires:
   Storable: 0
   ZMQ::Constants: 1.02
   ZMQ::LibZMQ3: 1.08
-  namespace::clean: 0.23
   perl: v5.10.1
   strictures: 1
 resources:
   repository: git://github.com/avenj/poex-zmq3.git
-version: 0.060003
+version: 0.060004
