@@ -1,5 +1,5 @@
 package POEx::ZMQ3;
-$POEx::ZMQ3::VERSION = '0.060004';
+$POEx::ZMQ3::VERSION = '0.07';
 use strictures 1;
 use Carp;
 
@@ -38,7 +38,7 @@ sub new {
 
 =head1 NAME
 
-POEx::ZMQ3 - POE-enabled asynchronous ZeroMQ components
+POEx::ZMQ3 - **DEPRECATED** See POEx::ZMQ instead
 
 =head1 SYNOPSIS
 
@@ -48,6 +48,13 @@ POEx::ZMQ3 - POE-enabled asynchronous ZeroMQ components
   # See POEx::ZMQ3::Sockets for a complete example.
 
 =head1 DESCRIPTION
+
+B<< This distribution is deprecated and known broken with ZMQ4+! >>
+It will likely be deleted in the future.
+
+B<< See L<POEx::ZMQ> instead >>. As of this writing, developer releases are
+available on CPAN, and you can help by contributing issues and/or fixes for
+same at L<http://www.github.com/avenj/poex-zmq>.
 
 A set of roles and classes providing a L<POE>-enabled asynchronous interface
 to B<ZeroMQ> (version 3) via L<ZMQ::LibZMQ3>.

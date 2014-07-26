@@ -1,5 +1,5 @@
 package POEx::ZMQ3::Requestor;
-$POEx::ZMQ3::Requestor::VERSION = '0.060004';
+$POEx::ZMQ3::Requestor::VERSION = '0.07';
 use Carp;
 use POE;
 

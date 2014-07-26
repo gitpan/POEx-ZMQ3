@@ -10,7 +10,7 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "POE-enabled asynchronous ZeroMQ components",
+  "ABSTRACT" => "**DEPRECATED** See POEx::ZMQ instead",
   "AUTHOR" => "Jon Portnoy <avenj\@cobaltirc.org>",
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
@@ -20,21 +20,24 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "POEx::ZMQ3",
   "PREREQ_PM" => {
-    "Carp" => 0,
     "Moo" => "1.000007",
     "MooX::Role::POE::Emitter" => "0.11",
     "MooX::Role::Pluggable::Constants" => 0,
     "POE" => "1.3",
     "POSIX" => 0,
-    "Storable" => 0,
     "ZMQ::Constants" => "1.02",
     "ZMQ::LibZMQ3" => "1.08",
     "strictures" => 1
   },
   "TEST_REQUIRES" => {
-    "Test::More" => "0.88"
+    "ExtUtils::MakeMaker" => 0,
+    "File::Spec" => 0,
+    "List::Util" => 0,
+    "Scalar::Util" => 0,
+    "Test::More" => "0.88",
+    "version" => "0.77"
   },
-  "VERSION" => "0.060004",
+  "VERSION" => "0.07",
   "test" => {
     "TESTS" => "t/*.t t/00_utils/*.t t/01_component/*.t t/02_subclass/*.t"
   }
@@ -42,17 +45,20 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "Carp" => 0,
+  "ExtUtils::MakeMaker" => 0,
+  "File::Spec" => 0,
+  "List::Util" => 0,
   "Moo" => "1.000007",
   "MooX::Role::POE::Emitter" => "0.11",
   "MooX::Role::Pluggable::Constants" => 0,
   "POE" => "1.3",
   "POSIX" => 0,
-  "Storable" => 0,
+  "Scalar::Util" => 0,
   "Test::More" => "0.88",
   "ZMQ::Constants" => "1.02",
   "ZMQ::LibZMQ3" => "1.08",
-  "strictures" => 1
+  "strictures" => 1,
+  "version" => "0.77"
 );
 
 

@@ -1,5 +1,5 @@
 package POEx::ZMQ3::Sockets::ZMQSocket;
-$POEx::ZMQ3::Sockets::ZMQSocket::VERSION = '0.060004';
+$POEx::ZMQ3::Sockets::ZMQSocket::VERSION = '0.07';
 =pod
 
 =for comment 

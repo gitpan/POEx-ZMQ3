@@ -1,7 +1,8 @@
 package POEx::ZMQ3::Sockets;
-$POEx::ZMQ3::Sockets::VERSION = '0.060004';
-use 5.10.1;
+$POEx::ZMQ3::Sockets::VERSION = '0.07';
+use v5.10;
 use Carp;
+
 use POE;
 use POSIX ();
 
@@ -277,7 +278,7 @@ sub _zsock_write {
 
   my $rc;
   if ( $rc = zmq_msg_send( $data, $struct->zsock, ($flags ? $flags : ()) ) 
-      && ($rc//0) == -1 ) {
+      && ($rc // 0) == -1 ) {
 
     unless ($rc == POSIX::EAGAIN || $rc == POSIX::EINTR) {
       confess "zmq_msg_send failed; $!";
