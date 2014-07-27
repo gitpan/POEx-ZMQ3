@@ -1,5 +1,5 @@
 package POEx::ZMQ3::Requestor;
-$POEx::ZMQ3::Requestor::VERSION = '0.07';
+$POEx::ZMQ3::Requestor::VERSION = '0.071';
 use Carp;
 use POE;
 
@@ -77,7 +77,7 @@ sub zmqsock_recv {
 
 =head1 NAME
 
-POEx::ZMQ3::Requestor - A REQ-type ZeroMQ socket
+POEx::ZMQ3::Requestor
 
 =head1 SYNOPSIS
 

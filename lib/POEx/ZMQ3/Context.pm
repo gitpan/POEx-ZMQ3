@@ -1,5 +1,5 @@
 package POEx::ZMQ3::Context;
-$POEx::ZMQ3::Context::VERSION = '0.07';
+$POEx::ZMQ3::Context::VERSION = '0.071';
 use v5.10;
 use strictures 1;
 use Carp 'confess';
@@ -41,7 +41,7 @@ sub reset {
 
 =head1 NAME
 
-POEx::ZMQ3::Context - A ZMQ context singleton
+POEx::ZMQ3::Context
 
 =head1 SYNOPSIS
 

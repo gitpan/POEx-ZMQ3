@@ -1,5 +1,5 @@
 package POEx::ZMQ3::Sockets;
-$POEx::ZMQ3::Sockets::VERSION = '0.07';
+$POEx::ZMQ3::Sockets::VERSION = '0.071';
 use v5.10;
 use Carp;
 
@@ -447,7 +447,7 @@ sub _zmq_clear_all {
 
 =head1 NAME
 
-POEx::ZMQ3::Sockets - POE ZeroMQ Component
+POEx::ZMQ3::Sockets
 
 =head1 SYNOPSIS
 
@@ -501,6 +501,8 @@ POEx::ZMQ3::Sockets - POE ZeroMQ Component
   $poe_kernel->run;
 
 =head1 DESCRIPTION
+
+B<< This software is deprecated and known-broken; see L<POEx::ZMQ> instead! >>
 
 This is the backend L<MooX::Role::POE::Emitter> session behind L<POEx::ZMQ3>,
 integrating ZeroMQ (L<http://www.zeromq.org>) with a L<POE> event loop.

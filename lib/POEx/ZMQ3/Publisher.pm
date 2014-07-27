@@ -1,5 +1,5 @@
 package POEx::ZMQ3::Publisher;
-$POEx::ZMQ3::Publisher::VERSION = '0.07';
+$POEx::ZMQ3::Publisher::VERSION = '0.071';
 use Carp;
 use POE;
 
@@ -48,7 +48,7 @@ sub publish_multipart {
 
 =head1 NAME
 
-POEx::ZMQ3::Publisher - A PUB-type ZeroMQ socket
+POEx::ZMQ3::Publisher
 
 =head1 SYNOPSIS
 
